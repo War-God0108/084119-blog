@@ -1,0 +1,21 @@
+{
+  "name": "084119-blog",
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "sync": "astro sync"
+  },
+  "dependencies": {
+    "astro": "^5.0.0",
+    "ufo": "^1.6.4"
+  },
+  "devDependencies": {
+    "@astrojs/rss": "^4.0.0",
+    "@astrojs/sitemap": "^3.0.0",
+    "typescript": "^5.7.0"
+  }
+}

@@ -1,0 +1,263 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../components/BaseLayout.astro';
+import { formatDate } from '../../utils/date';
+import { getReadingTime } from '../../utils/reading-time';
+import type { GetStaticPaths } from 'astro';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const posts = await getCollection('blog', ({ data }) => {
+    return import.meta.env.PROD ? !data.draft : true;
+  });
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+};
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const readingTime = getReadingTime(post.body || '');
+
+function extractHeadings(body: string) {
+  const regex = /^(#{2,3})\s+(.+)$/gm;
+  const headings: { depth: number; text: string; slug: string }[] = [];
+  let match;
+  while ((match = regex.exec(body)) !== null) {
+    const text = match[2];
+    const slug = text
+      .toLowerCase()
+      .replace(/[^\w一-鿿\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+    headings.push({ depth: match[1].length, text, slug });
+  }
+  return headings;
+}
+
+const headings = extractHeadings(post.body || '');
+
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+const sorted = allPosts.sort(
+  (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime()
+);
+const currentIndex = sorted.findIndex((p) => p.id === post.id);
+const prevPost = currentIndex < sorted.length - 1 ? sorted[currentIndex + 1] : null;
+const nextPost = currentIndex > 0 ? sorted[currentIndex - 1] : null;
+---
+
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  type="article"
+  path={`/blog/${post.id}`}
+>
+  <article class="container-narrow post-article">
+    <header class="post-header">
+      <h1 class="post-title">{post.data.title}</h1>
+      <div class="post-meta">
+        <time datetime={post.data.publishedAt.toISOString()}>
+          {formatDate(post.data.publishedAt)}
+        </time>
+        {
+          post.data.updatedAt && (
+            <span>（更新于 {formatDate(post.data.updatedAt)}）</span>
+          )
+        }
+        <span class="meta-sep">·</span>
+        <span>阅读 {readingTime} 分钟</span>
+      </div>
+      {
+        post.data.tags.length > 0 && (
+          <div class="post-tags">
+            {post.data.tags.map((tag) => <span class="tag">{tag}</span>)}
+          </div>
+        )
+      }
+    </header>
+
+    {
+      headings.length > 0 && (
+        <nav class="toc" aria-label="目录">
+          <h2 class="toc-title">目录</h2>
+          <ul>
+            {headings.map((h) => (
+              <li class={`toc-item toc-depth-${h.depth}`}>
+                <a href={`#${h.slug}`}>{h.text}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )
+    }
+
+    <div class="post-content">
+      <Content />
+    </div>
+
+    <nav class="post-nav" aria-label="文章导航">
+      {prevPost ? (
+        <a href={`/blog/${prevPost.id}`} class="post-nav-link prev">
+          <span class="post-nav-label">← 上一篇</span>
+          <span class="post-nav-title">{prevPost.data.title}</span>
+        </a>
+      ) : (
+        <div />
+      )}
+      {nextPost ? (
+        <a href={`/blog/${nextPost.id}`} class="post-nav-link next">
+          <span class="post-nav-label">下一篇 →</span>
+          <span class="post-nav-title">{nextPost.data.title}</span>
+        </a>
+      ) : (
+        <div />
+      )}
+    </nav>
+
+    <div class="back-link">
+      <a href="/blog">← 返回文章列表</a>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .post-article {
+    padding: 3rem 0 4rem;
+  }
+
+  .post-header {
+    margin-bottom: 2.5rem;
+    text-align: center;
+  }
+
+  .post-title {
+    font-size: 2.25rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .post-meta {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 0.75em;
+  }
+
+  .meta-sep {
+    margin: 0 0.4em;
+  }
+
+  .post-tags {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .tag {
+    font-size: 0.8rem;
+    padding: 0.15em 0.55em;
+    border-radius: 4px;
+    background: var(--color-bg-alt);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+  }
+
+  /* Table of Contents */
+  .toc {
+    background: var(--color-bg-alt);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .toc-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    margin-bottom: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .toc ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .toc-item {
+    margin-bottom: 0.3em;
+  }
+
+  .toc-item a {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .toc-item a:hover {
+    color: var(--color-accent);
+  }
+
+  .toc-depth-3 a {
+    padding-left: 1.25em;
+    font-size: 0.85rem;
+  }
+
+  /* Post content area */
+  .post-content {
+    max-width: var(--reading-width);
+    margin: 0 auto;
+  }
+
+  /* Post navigation */
+  .post-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .post-nav-link {
+    text-decoration: none;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    transition: border-color 0.2s ease;
+  }
+
+  .post-nav-link:hover {
+    border-color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  .post-nav-link.next {
+    text-align: right;
+  }
+
+  .post-nav-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 0.25em;
+  }
+
+  .post-nav-title {
+    font-size: 0.95rem;
+    color: var(--color-text);
+  }
+
+  .back-link {
+    margin-top: 2rem;
+    text-align: center;
+  }
+
+  .back-link a {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+  }
+</style>

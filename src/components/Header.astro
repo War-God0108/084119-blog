@@ -1,0 +1,96 @@
+---
+import { SITE } from '../utils/constants';
+import ThemeToggle from './ThemeToggle.astro';
+
+const currentPath = Astro.url?.pathname || '';
+const navItems = [
+  { label: '首页', href: '/' },
+  { label: '文章', href: '/blog' },
+  { label: '关于', href: '/about' },
+];
+---
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="/" class="site-logo">{SITE.title}</a>
+
+    <nav class="site-nav" aria-label="主导航">
+      {
+        navItems.map((item) => {
+          const isActive = currentPath === item.href ||
+            (item.href !== '/' && currentPath.startsWith(item.href));
+          return (
+            <a
+              href={item.href}
+              class={isActive ? 'nav-link active' : 'nav-link'}
+              aria-current={isActive ? 'page' : undefined}
+            >
+              {item.label}
+            </a>
+          );
+        })
+      }
+    </nav>
+
+    <ThemeToggle />
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    backdrop-filter: blur(8px);
+    background: color-mix(in srgb, var(--color-bg) 92%, transparent);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+
+  .site-logo {
+    font-family: var(--font-heading);
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-text);
+    text-decoration: none;
+    letter-spacing: -0.01em;
+  }
+
+  .site-logo:hover {
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  .site-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .nav-link {
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.925rem;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    transition: color 0.2s ease, background 0.2s ease;
+  }
+
+  .nav-link:hover {
+    color: var(--color-text);
+    background: var(--color-bg-alt);
+    text-decoration: none;
+  }
+
+  .nav-link.active {
+    color: var(--color-accent);
+    font-weight: 500;
+  }
+</style>

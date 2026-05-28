@@ -1,0 +1,99 @@
+---
+import BaseLayout from '../components/BaseLayout.astro';
+---
+
+<BaseLayout title="关于" path="/about">
+  <div class="container-narrow">
+    <section class="about-header">
+      <img
+        src="/岚曦.png"
+        alt="头像"
+        class="about-avatar"
+        width="100"
+        height="100"
+      />
+      <h1 class="page-title">关于我</h1>
+    </section>
+
+    <div class="about-content">
+      <p>
+        你好，我是 <strong>岚曦</strong>。
+      </p>
+
+      <p>
+        我是一名开发者，喜欢写代码、读好书、探索新事物。
+        这个博客是我在互联网上的一片安静角落，用来记录学习过程中的思考、技术笔记和生活中的点滴。
+      </p>
+
+      <p>
+        我相信写作是最好的思考方式。把模糊的想法写下来，它才会变得清晰。
+        这也是我建立这个博客的初衷——不是为了流量，不是为了关注，
+        而是为了让自己更认真地思考，更深入地理解。
+      </p>
+
+      <h2>关于这个网站</h2>
+
+      <p>
+        这个网站使用 <a href="https://astro.build" target="_blank" rel="noopener noreferrer">Astro</a> 构建，
+        部署在 <a href="https://pages.cloudflare.com" target="_blank" rel="noopener noreferrer">Cloudflare Pages</a> 上。
+        所有的文章都是 Markdown 写的，设计追求简单、快速、阅读舒适。
+      </p>
+
+      <p>
+        如果你对这个网站的技术细节感兴趣，可以看看
+        <a href="/blog/how-this-site-works">「这个网站是怎么搭建的」</a>这篇文章。
+      </p>
+
+      <h2>联系方式</h2>
+
+      <ul class="contact-list">
+        <li>Email: <code>3125973592@qq.com</code></li>
+        <li>GitHub: <code>War-God0108</code></li>
+      </ul>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .about-header {
+    padding: 3rem 0 1.5rem;
+    text-align: center;
+  }
+
+  .about-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin: 0 auto 1.25rem;
+    border: 2px solid var(--color-border);
+  }
+
+  .page-title {
+    font-size: 2.25rem;
+    margin-bottom: 0.5em;
+  }
+
+  .about-content {
+    max-width: var(--reading-width);
+    margin: 0 auto;
+    padding-bottom: 3rem;
+  }
+
+  .about-content h2 {
+    margin-top: 2em;
+  }
+
+  .contact-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .contact-list li {
+    padding: 0.35em 0;
+    font-size: 0.95rem;
+  }
+
+  .contact-list code {
+    font-size: 0.9rem;
+  }
+</style>

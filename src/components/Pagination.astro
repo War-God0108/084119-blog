@@ -1,0 +1,136 @@
+---
+export interface Props {
+  page: {
+    url: {
+      prev?: string;
+      next?: string;
+      first?: string;
+      last?: string;
+    };
+    currentPage: number;
+    lastPage: number;
+  };
+}
+
+const { page } = Astro.props;
+
+function pageNumbers(current: number, last: number): (number | '...')[] {
+  if (last <= 1) return [];
+  const pages: (number | '...')[] = [];
+
+  if (last <= 7) {
+    for (let i = 1; i <= last; i++) pages.push(i);
+    return pages;
+  }
+
+  pages.push(1);
+  if (current > 3) pages.push('...');
+
+  const start = Math.max(2, current - 1);
+  const end = Math.min(last - 1, current + 1);
+  for (let i = start; i <= end; i++) pages.push(i);
+
+  if (current < last - 2) pages.push('...');
+  pages.push(last);
+
+  return pages;
+}
+---
+
+{
+  page.lastPage > 1 && (
+    <nav class="pagination" aria-label="分页导航">
+      {page.url.prev ? (
+        <a href={page.url.prev} class="page-btn" rel="prev">← 上一页</a>
+      ) : (
+        <span class="page-btn disabled">← 上一页</span>
+      )}
+
+      <div class="page-numbers">
+        {pageNumbers(page.currentPage, page.lastPage).map((p) =>
+          p === '...' ? (
+            <span class="page-ellipsis">...</span>
+          ) : (
+            <a
+              href={p === 1 ? '/blog' : `/blog/${p}`}
+              class={p === page.currentPage ? 'page-num active' : 'page-num'}
+            >
+              {p}
+            </a>
+          )
+        )}
+      </div>
+
+      {page.url.next ? (
+        <a href={page.url.next} class="page-btn" rel="next">下一页 →</a>
+      ) : (
+        <span class="page-btn disabled">下一页 →</span>
+      )}
+    </nav>
+  )
+}
+
+<style>
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .page-btn {
+    font-size: 0.925rem;
+    color: var(--color-link);
+    text-decoration: none;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+  }
+
+  .page-btn:hover {
+    background: var(--color-bg-alt);
+    text-decoration: none;
+  }
+
+  .page-btn.disabled {
+    color: var(--color-text-secondary);
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .page-numbers {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .page-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .page-num:hover {
+    background: var(--color-bg-alt);
+    text-decoration: none;
+  }
+
+  .page-num.active {
+    background: var(--color-accent);
+    color: #fff;
+  }
+
+  .page-ellipsis {
+    color: var(--color-text-secondary);
+    padding: 0 0.25rem;
+  }
+</style>
