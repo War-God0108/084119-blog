@@ -1,0 +1,7 @@
+name = "084119-blog"
+main = "./dist/_worker.js"
+compatibility_date = "2026-06-15"
+compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
+
+[assets]
+directory = "./dist"

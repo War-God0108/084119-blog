@@ -5,6 +5,8 @@ import { formatDate } from '../../utils/date';
 import { getReadingTime } from '../../utils/reading-time';
 import type { GetStaticPaths } from 'astro';
 
+export const prerender = true;
+
 export const getStaticPaths: GetStaticPaths = async () => {
   const posts = await getCollection('blog', ({ data }) => {
     return import.meta.env.PROD ? !data.draft : true;
